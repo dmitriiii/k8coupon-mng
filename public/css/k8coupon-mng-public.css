@@ -1,0 +1,222 @@
+/**
+ * All of the CSS for your public-facing functionality should be
+ * included in this file.
+ */
+body .intl-tel-input .selected-flag{
+	padding-right: 15px;
+}
+.k8-inp__wrr{
+  border: 1px solid #E0E0E0;
+  padding-left: 0px;
+  padding-right: 40px;
+  background-color: #fff;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+.k8-inp__wrr input.k8-inp {
+  width: 100% ;
+  border: none;
+  background-color: transparent;
+  color: #000000;
+  padding-left: 10px;
+  outline: none;
+}
+.k8-inp__wrr input.k8-inp::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #cccccc;
+  opacity: 1; /* Firefox */
+}
+.k8-inp__wrr input.k8-inp:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: #cccccc;
+}
+.k8-inp__wrr input.k8-inp::-ms-input-placeholder { /* Microsoft Edge */
+  color: #cccccc;
+}
+.k8-inp__wrr.err {
+  background: #fff url(../img/err.png) 96% center no-repeat;
+  border: 1px solid #F2564C;
+}
+.k8-inp__wrr.succ {
+  background: #fff url(../img/succ.png) 96% center no-repeat;
+  border: 1px solid #22BB62;
+}
+.k8-inp__wrr .intl-tel-input.separate-dial-code .selected-flag{
+	background-color: transparent;
+}
+.k8-form__coupon{
+	padding: 50px 30px 40px;
+	max-width: 500px;
+	margin-left: auto;
+	margin-right: auto;
+	background-color: #f4f4f4;
+}
+/*PRELOADER*/
+.k8-prld{
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba( 0,0,0,0.8 );
+  z-index: 99999;
+  display: none;
+}
+.k8-prld__inn{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);  
+}
+.lds-spinner {
+  color: official;
+  display: inline-block;
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+.lds-spinner div {
+  transform-origin: 32px 32px;
+  animation: lds-spinner 1.2s linear infinite;
+}
+.lds-spinner div:after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 3px;
+  left: 29px;
+  width: 5px;
+  height: 14px;
+  border-radius: 20%;
+  background: #fff;
+}
+.lds-spinner div:nth-child(1) {
+  transform: rotate(0deg);
+  animation-delay: -1.1s;
+}
+.lds-spinner div:nth-child(2) {
+  transform: rotate(30deg);
+  animation-delay: -1s;
+}
+.lds-spinner div:nth-child(3) {
+  transform: rotate(60deg);
+  animation-delay: -0.9s;
+}
+.lds-spinner div:nth-child(4) {
+  transform: rotate(90deg);
+  animation-delay: -0.8s;
+}
+.lds-spinner div:nth-child(5) {
+  transform: rotate(120deg);
+  animation-delay: -0.7s;
+}
+.lds-spinner div:nth-child(6) {
+  transform: rotate(150deg);
+  animation-delay: -0.6s;
+}
+.lds-spinner div:nth-child(7) {
+  transform: rotate(180deg);
+  animation-delay: -0.5s;
+}
+.lds-spinner div:nth-child(8) {
+  transform: rotate(210deg);
+  animation-delay: -0.4s;
+}
+.lds-spinner div:nth-child(9) {
+  transform: rotate(240deg);
+  animation-delay: -0.3s;
+}
+.lds-spinner div:nth-child(10) {
+  transform: rotate(270deg);
+  animation-delay: -0.2s;
+}
+.lds-spinner div:nth-child(11) {
+  transform: rotate(300deg);
+  animation-delay: -0.1s;
+}
+.lds-spinner div:nth-child(12) {
+  transform: rotate(330deg);
+  animation-delay: 0s;
+}
+@keyframes lds-spinner {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+/*MODAL*/
+.ov-hidd{
+  overflow: hidden;
+}
+.modd {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 9999; /* Sit on top */
+  padding: 100px 20px 60px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgba(36, 60, 83, 0.8); /* Fallback color */
+}
+.status{
+  margin-bottom: 0;
+  color: red;
+}
+/* Modal Content */
+.modd__content {
+  position: relative;
+  margin: auto;
+  padding: 0;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  /*padding: 20px;*/
+  -webkit-animation-name: animatetop;
+  -webkit-animation-duration: 0.4s;
+  animation-name: animatetop;
+  animation-duration: 0.4s
+}
+.modd__title{
+  font-size: 25px;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  /*font-family: 'NCTLarkspur-Bold';*/
+  background-color: #fff;
+  padding: 20px;
+  text-align: center;
+}
+.modd__form{
+  background-color: #F7FAFC;
+  padding: 20px;
+}
+.modd__txt{
+  padding: 20px;
+  background-color: #fff;
+}
+/* The Close Button */
+.modd__clz {
+  /*color: red;*/
+  font-size: 27px;
+  /*font-weight: bold;*/
+  position: absolute;
+  right: 20px;
+  top: 25px;
+}
+.modd__clz:hover,
+.modd__clz:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+/* Add Animation */
+@-webkit-keyframes animatetop {
+  from {top:-300px; opacity:0} 
+  to {top:0; opacity:1}
+}
+@keyframes animatetop {
+  from {top:-300px; opacity:0}
+  to {top:0; opacity:1}
+}
