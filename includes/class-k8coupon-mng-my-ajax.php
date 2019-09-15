@@ -47,8 +47,8 @@ class K8coupon_Mng_My_Ajax
       $arrr['error'][] = 'Bitte gibt eine gültige Telefonnummer an!';
     }
     #Checking if phone number greater than 15 MSISDN
-    if( strlen( $k8_phone ) > 15 ){
-      $arrr['error'][] = 'max. 15-stellige internationale MSISDN';
+    if( strlen( $k8_phone ) > 17 ){
+      $arrr['error'][] = 'max. 17-stellige internationale MSISDN';
     }
     #Checking for existing errors
     if( isset( $arrr['error'] ) && count( $arrr['error'] ) > 0 ){
@@ -69,6 +69,34 @@ class K8coupon_Mng_My_Ajax
       $arrr['error'][] = 'Keine Gutscheine mehr übrig. Bitte kontaktieren Sie uns!';
       $this->final($arrr);
     }
+
+    #Sending SMS to new client with coupon number
+    $my_sms = new K8coupon_Mng_My_Sms(
+      array(
+        'coupon' => $coup_rand->code,
+        'phone' => $k8_phone
+      )
+    );
+    $ress = $my_sms->send();
+
+    // write_log( $ress );
+
+    // die();
+
+    #Check if sending error or not
+    if( $ress->status == 'ERROR' ){
+      $arrr['error'][] = 'Fehler beim Senden der SMS. Bitte kontaktieren Sie uns, um das Problem zu lösen';
+      $this->final($arrr);
+    }
+    #Phone number Doesnt Exist at all!
+    foreach ($ress->sms as $phone => $data) {
+      if ($data->status !== "OK") {
+        $arrr['error'][] = 'Fehler beim Senden der SMS. Telefonnummer, die Sie eingegeben haben - existiert nicht';
+        $this->final($arrr);
+      }
+    }
+
+
     #inserting phone number to DB
     $wpdb->insert( $wpdb->prefix . 'k8_client',
       array(
@@ -95,14 +123,7 @@ class K8coupon_Mng_My_Ajax
       ),
       array( '%d' )
     );
-    #Sending SMS to new client with coupon number
-    $my_sms = new K8coupon_Mng_My_Sms(
-      array(
-        'coupon' => $coup_rand->code,
-        'phone' => $k8_phone
-      )
-    );
-    $ress = $my_sms->send();
+
     $arrr['html'] = 'ok!';
     $this->final($arrr);
   }
