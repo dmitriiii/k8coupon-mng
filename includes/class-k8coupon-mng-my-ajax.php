@@ -55,7 +55,7 @@ class K8coupon_Mng_My_Ajax
 			$arrr['error'][] = 'max. 17-stellige internationale MSISDN';
 		}
 		#Checking for allowed country code
-		if( in_array($k8_country, $enabled_countries) ){
+		if( !in_array($k8_country, $enabled_countries) ){
 			$arrr['error'][] = 'Dein Land ist nicht erlaubt';
 		}
 		#Checking for existing errors
