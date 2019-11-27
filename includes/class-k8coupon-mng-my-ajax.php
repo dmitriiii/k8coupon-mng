@@ -15,7 +15,8 @@ class K8coupon_Mng_My_Ajax
   public function k8coupon_mng_send(){
     $arrr = array();
     extract( $_POST );
-    // write_log(get_defined_vars());
+    write_log(get_defined_vars());
+    die();
     # checking for direct form submission
     if( !isset( $action ) || $action !== 'k8coupon_mng_send' || !isset( $datta ) || !is_array( $datta ) || count( $datta ) <= 0 ){
       $arrr['error'][] = 'Hackers sind unerwünscht. nutze das Webformular!';
