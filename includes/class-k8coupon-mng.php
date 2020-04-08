@@ -99,6 +99,10 @@ class K8coupon_Mng {
 		 * of the plugin.
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-k8coupon-mng-i18n.php';
+
+		#require SMS sending feature
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/smsru_php/sms.ru.php';
+
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
@@ -112,9 +116,11 @@ class K8coupon_Mng {
 		#helping class
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-k8coupon-mng-my-help.php';
 		#add Sms Sending Support
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-k8coupon-mng-my-sms.php';
+		// require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-k8coupon-mng-my-sms.php';
 		# Add custom code with shortcodes
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-k8coupon-mng-my-short.php';
+		#add custom routes
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-k8coupon-mng-my-route.php';
 		#Add Ajax Support
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-k8coupon-mng-my-ajax.php';
 		$this->loader = new K8coupon_Mng_Loader();

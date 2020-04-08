@@ -74,6 +74,8 @@
 							'datta' : $(this).serializeArray()
 						},
 						success: function (data) {
+							// console.;log(data);
+
 							$('.k8-prld').css('display', 'none');
 							if ( data.error ) {
 								var $mod = $('#modd__err'),
@@ -86,13 +88,19 @@
 								$('body').addClass('ov-hidd');
 								$mod.css('display', 'block');
 							}
+							else if (data.html_1) {
+								var $succ = $('#modd__succ'),
+										$txt = $succ.find('.modd__txt');
+								$txt.html(data.html_1);
+								$('#modd__succ').css('display', 'block');
+							}
 							else{
 								$('#modd__succ').css('display', 'block');
 								setTimeout(function(){
 									window.location.replace("https://vavt.de/link/ppt");
 								}, 1000);
 							}
-							console.log(data);
+
 						}
 					});
 				});
@@ -125,7 +133,7 @@
 					  	nationalMode: false,
 					  	initialCountry: "auto",
 					  	initialCountry: "AT",
-						  onlyCountries:["AT","CH","DE"],
+						  onlyCountries:["AT","CH","DE","RU"],
 						  separateDialCode: true,
 					  }),
 			 			$parr = phnn.closest('.intl-tel-input'),

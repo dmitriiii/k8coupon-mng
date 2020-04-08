@@ -14,7 +14,7 @@ class K8coupon_Mng_My_Ajax
 	#Send Phone Number
 	public function k8coupon_mng_send(){
 		$arrr = array();
-		$enabled_countries = [ '+43','+49','+41' ];
+		$enabled_countries = [ '+43','+49','+41','+7' ];
 		$k8_country = '';
 		extract( $_POST );
 		// write_log(get_defined_vars());
@@ -37,6 +37,9 @@ class K8coupon_Mng_My_Ajax
 				case 'country':
 					$k8_country = $item['value'];
 					$k8_phone = K8coupon_Mng_My_Help::getNumz($item['value']) . $k8_phone;
+					break;
+				case 'k8_vpnid':
+					$k8_vpnid = K8coupon_Mng_My_Help::getNumz($item['value']);
 					break;
 				default:
 					break;
@@ -62,78 +65,68 @@ class K8coupon_Mng_My_Ajax
 		if( isset( $arrr['error'] ) && count( $arrr['error'] ) > 0 ){
 			$this->final($arrr);
 		}
-		// write_log(get_defined_vars());
 		global $wpdb;
-		$k8_client = $wpdb->get_row($wpdb->prepare("SELECT * FROM `".$wpdb->prefix."k8_client` WHERE `phone` = %s", $k8_phone));
-		#If number already received Coupon
-		if( !empty( $k8_client ) ){
+		$k8_client = $wpdb->get_row($wpdb->prepare("SELECT `id` FROM `".$wpdb->prefix."k8_client` WHERE `phone`=%s AND `is_used`=%d", $k8_phone, 1));
+		#If number is used and already received Coupon
+		if( !empty($k8_client) ){
 			$arrr['error'][] = 'Du hast bereits einen Coupon erhalten.Diese Coupons sind nur zum Testen gedacht und daher können wir Dir keinen weiteren senden.';
 			$this->final($arrr);
 		}
-		#Selecting Random UnUsed Coupon
-		$coup_rand = $wpdb->get_row($wpdb->prepare("SELECT * FROM `".$wpdb->prefix."k8_coupon` WHERE `is_taken`=%d ORDER BY RAND() LIMIT 1", 0));
-		#No Unused Coupons left
-		if( !isset( $coup_rand ) || empty( $coup_rand ) ){
-			$arrr['error'][] = 'Keine Gutscheine mehr übrig. Bitte kontaktieren Sie uns!';
-			$this->final($arrr);
-		}
 
-		#Sending SMS to new client with coupon number
-		$my_sms = new K8coupon_Mng_My_Sms(
-			array(
-				'coupon' => $coup_rand->code,
-				'phone' => $k8_phone
-			)
-		);
-		$ress = $my_sms->send();
+		#setting up phone authorization
+		$bbody = file_get_contents("https://sms.ru/callcheck/add?api_id=B3421EE9-59F2-27AF-FA18-2CE9AC127B0F&phone=".$k8_phone."&json=1");
+		$jjson = json_decode($bbody);
+		// write_log($jjson); // Для дебага
 
-		// write_log( $ress );
+		// $k8_client = $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."k8_client WHERE phone=%s AND is_used IS NULL", $k8_phone));
+		$k8_client = $wpdb->get_results("SELECT * FROM `".$wpdb->prefix."k8_client` WHERE `phone`=".$k8_phone." AND `is_used` IS NULL");
 
-		// die();
-
-		#Check if sending error or not
-		if( $ress->status == 'ERROR' ){
-			$arrr['error'][] = 'Fehler beim Senden der SMS. Bitte kontaktieren Sie uns, um das Problem zu lösen';
-			$this->final($arrr);
-		}
-		#Phone number Doesnt Exist at all!
-		foreach ($ress->sms as $phone => $data) {
-			if ($data->status !== "OK") {
-				$arrr['error'][] = 'Fehler beim Senden der SMS. Telefonnummer, die Sie eingegeben haben - existiert nicht';
-				$this->final($arrr);
+		#Update
+		if( is_array($k8_client) && count($k8_client) > 0 ){
+			foreach ($k8_client as $k8_cli) {
+				#If user tried with no luck more than 3 times
+				if( $k8_cli->atempts > 3 ){
+					$arrr['error'][] = 'Sie haben die Anzahl der Versuche auf diese Anzahl erschöpft (mehr als 3).';
+					$this->final($arrr);
+				}
+				$wpdb->query(
+					$wpdb->prepare(
+						"UPDATE `".$wpdb->prefix."k8_client` SET `callcheck_id`=%s, `phn_auth`=%s, `callcheck_date`=%s, `vpn_id`=%d, `atempts`=`atempts`+1  WHERE `id`=%d",
+						$jjson->check_id,
+						$jjson->call_phone,
+						current_time('mysql'),
+						$k8_vpnid,
+						$k8_cli->id
+					)
+				);
 			}
 		}
+		// Insert
+		else{
+			$wpdb->insert(
+				$wpdb->prefix . 'k8_client',
+				array(
+					'phone' => $k8_phone,
+					'callcheck_id' => $jjson->check_id,
+					'phn_auth' => $jjson->call_phone,
+					'callcheck_date' => current_time( 'mysql' ),
+					'vpn_id' => $k8_vpnid
+				),
+				array(
+					'%s',
+					'%s',
+					'%s',
+					'%s',
+					'%d'
+				)
+			);
+		}
 
-
-		#inserting phone number to DB
-		$wpdb->insert( $wpdb->prefix . 'k8_client',
-			array(
-				'phone' => $k8_phone,
-			),
-			array(
-				'%s',
-			)
-		);
-		$latest_client_id = $wpdb->insert_id;
-		#Updating coupon table with data
-		$wpdb->update(
-			$wpdb->prefix.'k8_coupon',
-			array(
-				'client_id' => $latest_client_id,  // string
-				'is_taken' => 1, // integer (number)
-				'reg_date' => current_time( 'mysql' )
-			),
-			array( 'id' => $coup_rand->id ),
-			array(
-				'%s', // value1
-				'%d',  // value2
-				'%s'
-			),
-			array( '%d' )
-		);
-
-		$arrr['html'] = 'ok!';
+		#Call to our number, that listed below, so we can be sure  that you are a real person with real phone number
+		$arrr['html'] = "ok";
+		$arrr['html_1'] = "Rufen Sie unsere unten aufgeführte Nummer an, damit wir sicher sein können, dass Sie eine echte Person mit einer echten Telefonnummer sind <br>" . $jjson->call_phone_html;
 		$this->final($arrr);
+
 	}
 }
 new K8coupon_Mng_My_Ajax;

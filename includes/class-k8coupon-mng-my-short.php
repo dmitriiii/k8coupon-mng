@@ -5,7 +5,8 @@ class K8coupon_Mng_My_Short
 		#Show table with taxonomies Data
 		add_shortcode( 'k8coupon_mng_form', array( $this, 'k8coupon_mng_form') );
 	}
-	public function k8coupon_mng_form($atts){
+	public function k8coupon_mng_form($atts, $content, $tag){
+
 		wp_enqueue_script( 'k8-intUtils-js' );
 		wp_enqueue_script( 'k8-intlTelInput-js' );
 		wp_enqueue_script( 'k8coupon-mng-public-js' );
@@ -13,6 +14,9 @@ class K8coupon_Mng_My_Short
 	    'ajaxurl' => admin_url( 'admin-ajax.php' ),
 	  ));
 		wp_enqueue_style( 'k8-intlTelInput-css' );
+		$a = shortcode_atts( array(
+			'vpnid' => 6,
+		), $atts );
 		ob_start();
 		?>
 			<form class="k8-form__coupon" action="k8coupon_mng_send" method="post">
@@ -29,6 +33,7 @@ class K8coupon_Mng_My_Short
 						<button class="k8_bec" type="submit">Einen Coupon erhalten!</button>
 					</p>
 				</div>
+				<input type="hidden" name="k8_vpnid" value="<?php echo $a['vpnid']; ?>">
 			</form>
 		<?php
 	  $html = ob_get_clean();

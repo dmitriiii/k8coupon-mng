@@ -86,7 +86,7 @@ class K8coupon_Mng_Public {
 		 */
 		wp_register_script( 'k8-intUtils-js', plugin_dir_url( __FILE__ ) . 'js/utils.js', array('jquery'), 1.1, false );
 		wp_register_script( 'k8-intlTelInput-js', plugin_dir_url( __FILE__ ) . 'js/intlTelInput-jquery.min.js', array('jquery'), 1.1, false );
-		wp_register_script( 'k8coupon-mng-public-js', plugin_dir_url( __FILE__ ) . 'js/k8coupon-mng-public.js', array('jquery'), $this->version, false );
+		wp_register_script( 'k8coupon-mng-public-js', plugin_dir_url( __FILE__ ) . 'js/k8coupon-mng-public.js', array('jquery'), rand(1,1000), false );
 	}
 	#Adding custom Hooks
 	public function k8_actions_wp_footer(){ ?>
