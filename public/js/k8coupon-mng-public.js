@@ -57,6 +57,35 @@
 					event.preventDefault();
 					checkInp( $(this) );
 				});
+
+				let liveUpdateAuth = function(args){
+					$.ajax({
+						type: 'POST',
+						dataType: 'json',
+						url: k8All.ajaxurl,
+						data: {
+							'action': 'k8coupon_mng_live_auth',
+							'callcheck_id': args.callcheck_id
+						},
+						success: function (data) {
+							console.log(data);
+							if(data.phn_approved !== undefined && data.phn_approved==1){
+								$('.modd').css('display', 'none');
+								setTimeout(function(){
+									var $succ = $('#modd__succ'),
+											$txt = $succ.find('.modd__txt');
+									$txt.html(data.txt1);
+									$succ.css('display', 'block');
+								}, 200);
+								setTimeout(function(){
+									window.location.replace(data.redirect_url);
+								}, 2000);
+							}
+						}
+					});
+					// console.log(args);
+				}
+
 				// Perform AJAX login/register on form submit
 				$('form.k8-form__coupon').on('submit', function (e) {
 					e.preventDefault();
@@ -88,18 +117,24 @@
 								$('body').addClass('ov-hidd');
 								$mod.css('display', 'block');
 							}
-							else if (data.html_1) {
+							//Waiting for user's phone number confirm
+							if (data.html_1) {
 								var $succ = $('#modd__succ'),
 										$txt = $succ.find('.modd__txt');
 								$txt.html(data.html_1);
 								$('#modd__succ').css('display', 'block');
+								setInterval( function(){
+									liveUpdateAuth({
+										'callcheck_id':data.callcheck_id
+									});
+								}, 10000);
 							}
-							else{
-								$('#modd__succ').css('display', 'block');
-								setTimeout(function(){
-									window.location.replace("https://vavt.de/link/ppt");
-								}, 1000);
-							}
+							// else{
+							// 	$('#modd__succ').css('display', 'block');
+							// 	setTimeout(function(){
+							// 		window.location.replace("https://vavt.de/link/ppt");
+							// 	}, 1000);
+							// }
 
 						}
 					});

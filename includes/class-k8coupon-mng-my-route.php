@@ -19,7 +19,7 @@ class K8coupon_Mng_My_Route
 
 	public function coup_upd( WP_REST_Request $request ){
 		$post_params = $request->get_params();
-		write_log( 'Callback Triggered!' );
+		// write_log( 'Callback Triggered!' );
 		global $wpdb;
 		// write_log($post_params);
 
@@ -46,12 +46,9 @@ class K8coupon_Mng_My_Route
 					$sms_status = $lines[2];
 					$k8_client = $wpdb->get_row($wpdb->prepare("SELECT * FROM `".$wpdb->prefix."k8_client` WHERE `sms_id`=%s", $sms_id));
 					$wpdb->query( $wpdb->prepare("UPDATE `".$wpdb->prefix."k8_client` SET `sms_status`=%d WHERE `sms_id`=%s", $sms_status, $sms_id) );
-					write_log($k8_client);
-					#SMS was received
-					if( $sms_status == 103 || $sms_status == 102 ){
-						$wpdb->query( $wpdb->prepare("UPDATE `".$wpdb->prefix."k8_coupon` SET `is_taken`=%d, `reg_date`=%s WHERE `client_id`=%d", 1, current_time( 'mysql' ), $k8_client->id) );
-						$wpdb->query( $wpdb->prepare("UPDATE `".$wpdb->prefix."k8_client` SET `is_used`=%d WHERE `id`=%d", 1, $k8_client->id) );
-					}
+					// write_log($k8_client);
+
+
 
 					// "Изменение статуса. Сообщение: $sms_id. Новый статус: $sms_status";
 					// Здесь вы можете уже выполнять любые действия над этими данными.
@@ -73,10 +70,14 @@ class K8coupon_Mng_My_Route
 						$coup_rand = $wpdb->get_row($wpdb->prepare("SELECT * FROM `".$wpdb->prefix."k8_coupon` WHERE `is_taken`=%d AND `vpn_id`=%d ORDER BY RAND() LIMIT 1", 0, $k8_client->vpn_id));
 
 						$smsru = new SMSRU('B3421EE9-59F2-27AF-FA18-2CE9AC127B0F'); // Ваш уникальный программный ключ, который можно получить на главной странице
-
+						$texxxt = 'Ihr Gutscheincode ist '.$coup_rand->code;
+						#For Hide.me coupons
+						if($coup_rand->vpn_id == 15){
+							$texxxt = "Hier geht`s zu Deinem kostenlosen hide.me Konto: ".get_field('hm','option').$coup_rand->code;
+						}
 						$sms_data = new stdClass();
 						$sms_data->to = $k8_client->phone;
-						$sms_data->text = 'Hello World ' . $coup_rand->code; // Текст сообщения
+						$sms_data->text = $texxxt; // Текст сообщения
 						$sms_data->from = 'vpntester';
 						// $data->from = ''; // Если у вас уже одобрен буквенный отправитель, его можно указать здесь, в противном случае будет использоваться ваш отправитель по умолчанию
 						// $data->time = time() + 7*60*60; // Отложить отправку на 7 часов
@@ -100,14 +101,33 @@ class K8coupon_Mng_My_Route
 						if ($sms->status == "OK") {
 							$wpdb->query(
 								$wpdb->prepare(
-									"UPDATE `".$wpdb->prefix."k8_client` SET `sms_id`=%s, `atempts`=%d WHERE `id`=%d",
+									"UPDATE `".$wpdb->prefix."k8_client` SET `sms_id`=%s, `is_used`=%d, `atempts`=%d WHERE `id`=%d",
 									$sms->sms_id,
+									1,
 									0,
 									$k8_client->id
 								)
 							);
-							$wpdb->query( $wpdb->prepare("UPDATE `".$wpdb->prefix."k8_coupon` SET `client_id`=%d WHERE `id`=%d", $k8_client->id, $coup_rand->id) );
+							$wpdb->query(
+								$wpdb->prepare(
+									"UPDATE `".$wpdb->prefix."k8_coupon` SET `is_taken`=%d, `reg_date`=%s, `client_id`=%d WHERE `id`=%d",
+									1,
+									current_time( 'mysql' ),
+									$k8_client->id,
+									$coup_rand->id)
+							);
 						}
+
+
+						#SMS was received
+						// if( $sms_status == 103 || $sms_status == 102 ){
+						// 	$wpdb->query( $wpdb->prepare("UPDATE `".$wpdb->prefix."k8_client` SET `is_used`=%d WHERE `id`=%d", 1, $k8_client->id) );
+
+
+						// 	$wpdb->query( $wpdb->prepare("UPDATE `".$wpdb->prefix."k8_coupon` SET `is_taken`=%d, `reg_date`=%s WHERE `client_id`=%d", 1, current_time( 'mysql' ), $k8_client->id) );
+						// }
+
+
 
 						// write_log($k8_client);
 						// write_log($coup_rand);

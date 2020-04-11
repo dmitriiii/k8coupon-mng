@@ -6,11 +6,41 @@ class K8coupon_Mng_My_Ajax
 		//Send Phone Number
 		add_action('wp_ajax_nopriv_k8coupon_mng_send', array( $this, 'k8coupon_mng_send' ));
 		add_action('wp_ajax_k8coupon_mng_send', array( $this, 'k8coupon_mng_send' ));
+
+		#live update send status
+		add_action('wp_ajax_nopriv_k8coupon_mng_live_auth', array( $this, 'k8coupon_mng_live_auth' ));
+		add_action('wp_ajax_k8coupon_mng_live_auth', array( $this, 'k8coupon_mng_live_auth' ));
 	}
 	public function final( $arrr ){
 		echo json_encode( $arrr );
 		exit();
 	}
+	#live update wheather user called us
+	public function k8coupon_mng_live_auth(){
+		$arrr = array();
+		extract( $_POST );
+		// write_log(get_defined_vars());
+		global $wpdb;
+		$k8_client = $wpdb->get_row($wpdb->prepare("SELECT * FROM `".$wpdb->prefix."k8_client` WHERE `callcheck_id`=%s", $callcheck_id));
+		#Phone Auth passed
+		if( !empty($k8_client) && $k8_client->callcheck_status == 401 ){
+			
+			$k8_coupon = $wpdb->get_row($wpdb->prepare("SELECT * FROM `".$wpdb->prefix."k8_coupon` WHERE `client_id`=%d", $k8_client->id));
+
+			$arrr['phn_approved'] = 1;
+			$arrr['redirect_url'] = get_field('pp','option');
+			$arrr['code'] = $k8_coupon->code;
+			# Redirect for hide.me VPN
+			if( $k8_client->vpn_id == 15 ){
+				$arrr['redirect_url'] = get_field('hm','option') .$k8_coupon->code.'/';
+			}
+			#Phone number authorization successfully passed modal
+			$arrr['txt1'] = get_field('u_n_t_4','option');
+		}
+		// write_log($k8_client);
+		$this->final($arrr);
+	}
+
 	#Send Phone Number
 	public function k8coupon_mng_send(){
 		$arrr = array();
@@ -69,7 +99,7 @@ class K8coupon_Mng_My_Ajax
 		$k8_client = $wpdb->get_row($wpdb->prepare("SELECT `id` FROM `".$wpdb->prefix."k8_client` WHERE `phone`=%s AND `is_used`=%d", $k8_phone, 1));
 		#If number is used and already received Coupon
 		if( !empty($k8_client) ){
-			$arrr['error'][] = 'Du hast bereits einen Coupon erhalten.Diese Coupons sind nur zum Testen gedacht und daher können wir Dir keinen weiteren senden.';
+			$arrr['error'][] = get_field('u_n_t_1',"option");
 			$this->final($arrr);
 		}
 
@@ -80,13 +110,18 @@ class K8coupon_Mng_My_Ajax
 
 		// $k8_client = $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."k8_client WHERE phone=%s AND is_used IS NULL", $k8_phone));
 		$k8_client = $wpdb->get_results("SELECT * FROM `".$wpdb->prefix."k8_client` WHERE `phone`=".$k8_phone." AND `is_used` IS NULL");
+		// write_log($k8_client);
+		// $date1 = ;
+		// $d1 =	strtotime(current_time('mysql') .'+5 minutes');
 
+		// write_log( $d1 );
 		#Update
 		if( is_array($k8_client) && count($k8_client) > 0 ){
 			foreach ($k8_client as $k8_cli) {
+
 				#If user tried with no luck more than 3 times
-				if( $k8_cli->atempts > 3 ){
-					$arrr['error'][] = 'Sie haben die Anzahl der Versuche auf diese Anzahl erschöpft (mehr als 3).';
+				if( $k8_cli->atempts >= 3 ){
+					$arrr['error'][] = get_field('u_n_t_2',"option");
 					$this->final($arrr);
 				}
 				$wpdb->query(
@@ -124,7 +159,8 @@ class K8coupon_Mng_My_Ajax
 
 		#Call to our number, that listed below, so we can be sure  that you are a real person with real phone number
 		$arrr['html'] = "ok";
-		$arrr['html_1'] = "Rufen Sie unsere unten aufgeführte Nummer an, damit wir sicher sein können, dass Sie eine echte Person mit einer echten Telefonnummer sind <br>" . $jjson->call_phone_html;
+		$arrr['html_1'] = get_field('u_n_t_3',"option");
+		$arrr['callcheck_id'] = $jjson->check_id;
 		$this->final($arrr);
 
 	}

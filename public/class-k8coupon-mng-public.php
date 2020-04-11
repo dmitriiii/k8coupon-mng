@@ -99,7 +99,7 @@ class K8coupon_Mng_Public {
 			<div class="modd__content">
 				<div class="modd__clz">&times;</div>
 				<div class="modd__title" style="color: red;">
-					Fehler bei <br> der Übermittlung.
+					<!-- Fehler bei <br> der Übermittlung. -->
 				</div>
 				<div class="modd__txt" style="color: red;"></div>
 		  </div>
